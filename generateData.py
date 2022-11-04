@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 import csv
 from os import system
+import smtplib
+from email.message import EmailMessage
 
 with open ("images_in_bps.txt", 'r') as bpsImageFile:
     bpsImages = set(bpsImageFile.readlines())
@@ -101,4 +103,38 @@ imageMissingFile.close()
 bkpMissingFile.close()
 ALERTFile.close()
 ALLGOODFile.close()
+
+mymsg="""Greetings!
+
+This is an auto generated email to notify the status of the images related to your NovelloShell setup.
+Manual action may be needed only on the ALERT message below. Rest all will be auto corrected!
+"""
+msg = EmailMessage()
+
+with open('ALERT.txt') as fp:
+    mymsg = mymsg + "\nALERT: Below images used by your labs are missing from cluster and backup disk as well: \n" + fp.read()
+
+with open('ImageDelete.txt') as fp:
+    mymsg = mymsg + "\nBelow images are not in use by any of the labs. These will be deleted from your setup: \n" + fp.read()
+
+with open('ImageMissing-Cluster.txt') as fp:
+    mymsg = mymsg + "\nBelow images being used are missing from the cluster. The images will be restored from the available backup: \n" + fp.read()
+
+with open('ImageMissing-Disk.txt') as fp:
+    mymsg = mymsg + "\nNo backup found for below images being used. Backup on disk will be created automatically: \n" + fp.read()
+
+#with open('ALLGOOD.txt') as fp:
+#    mymsg = mymsg + "\nAll is well with below images: \n" + fp.read()
+
+
+msg.set_content(mymsg)
+
+msg['Subject'] = f'[INFO] Status of images on your lab setup with NovelloShell'
+## REPLACE FROM and TO email IDs below
+msg['From'] = 'FROM@DOMAIN'
+msg['To'] = 'TO@DOMAIN'
+
+s = smtplib.SMTP('localhost')
+s.send_message(msg)
+s.quit()
 
