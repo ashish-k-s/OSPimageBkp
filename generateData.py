@@ -11,16 +11,12 @@ with open("images_on_disk.txt", 'r') as diskImageFile:
 with open("images_on_cluster.txt", 'r') as clusterImageFile:
     clusterImages = set(clusterImageFile.readlines())
 
-print (bpsImages)
-print (diskImages)
-print (clusterImages)
-
 allImages=bpsImages.union(diskImages)
 allImages=allImages.union(clusterImages)
 
 with open('table1.csv', 'w', newline='') as table1:
     t1=csv.writer(table1)
-    t1.writerow(["imageName","inBPs","onDisk","inCluster","Status"])
+    t1.writerow(["imageName","inBPs","onDisk","onCluster","Status"])
 
     for imageName in allImages:
         if imageName in bpsImages:
@@ -34,22 +30,22 @@ with open('table1.csv', 'w', newline='') as table1:
             onDisk=False
 
         if imageName in clusterImages:
-            inCluster=True
+            onCluster=True
         else:
-            inCluster=False
+            onCluster=False
 
-        if inBPs and not onDisk and not inCluster:
+        if inBPs and not onDisk and not onCluster:
             Status="ALERT"
-        if inBPs and not onDisk and inCluster:
+        if inBPs and not onDisk and onCluster:
             Status="bkpMissing"
-        if inBPs and onDisk and not inCluster:
+        if inBPs and onDisk and not onCluster:
             Status="imageMissing"
-        if inBPs and onDisk and inCluster:
+        if inBPs and onDisk and onCluster:
             Status="ALLGOOD"
         if not inBPs:
             Status="DeleteImage"
 
-        t1.writerow([imageName,inBPs,onDisk,inCluster,Status])
+        t1.writerow([imageName,inBPs,onDisk,onCluster,Status])
 
 bpsImageFile.close()
 diskImageFile.close()
@@ -66,46 +62,29 @@ with open('table1.csv', 'r') as table1:
     t1=csv.DictReader(table1)
     for line in t1:
         if line['Status'] == 'imageMissing':
-            print ("Handle missing image for " + line['imageName'])
             imageMissingList.append(line['imageName'])
 
         if line['Status'] == 'ALERT':
-            print ("Handle alert for " + line['imageName'])
             ALERTList.append(line['imageName'])
 
         if line['Status'] == 'bkpMissing':
-            print ("Handle missing backup for " + line['imageName'])
             bkpMissingList.append(line['imageName'])
 
         if line['Status'] == 'DeleteImage':
-            print ("Handle delete image for " + line['imageName'])
             DeleteImageList.append(line['imageName'])
 
         if line['Status'] == 'ALLGOOD':
-            print ("Handle all good for " + line['imageName'])
             ALLGOODList.append(line['imageName'])
 
-
-print("DeleteImageList")
-print(DeleteImageList)
-print("imageMissingList")
-print(imageMissingList)
-print("bkpMissingList")
-print(bkpMissingList)
-print("ALERTList")
-print(ALERTList)
-print("ALLGOODList")
-print(ALLGOODList)
-
-with open("DeleteImage.txt", 'w') as DeleteImageFile:
+with open("ImageDelete.txt", 'w') as DeleteImageFile:
     for item in DeleteImageList:
         DeleteImageFile.write(item)
 
-with open("imageMissing.txt", 'w') as imageMissingFile:
+with open("ImageMissing-Cluster.txt", 'w') as imageMissingFile:
     for item in imageMissingList:
         imageMissingFile.write(item)
 
-with open("bkpMissing.txt", 'w') as bkpMissingFile:
+with open("ImageMissing-Disk.txt", 'w') as bkpMissingFile:
     for item in bkpMissingList:
         bkpMissingFile.write(item)
 
