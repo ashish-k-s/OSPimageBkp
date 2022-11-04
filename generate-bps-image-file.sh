@@ -11,5 +11,7 @@ TAG=$(grep TAG $CONFIGFILE  | grep -v ^#)
 eval $BPSDIR
 eval $TAG
 
-grep -h image $(find $BPSDIR | grep -w "stack_user.yaml$")  | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//' | grep ^image | cut -d : -f2 | tr -d '"' | tr -d "'" | sort -n | uniq | grep -i $TAG > images_in_bps.txt
+cd $BPSDIR
+
+grep -h image $(find . | grep -v './dev' | grep -v './test' | grep -w "stack_user.yaml$")  | sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//' | grep ^image | cut -d : -f2 | tr -d '"' | tr -d "'" | sort -n | uniq | grep -i $TAG > $OLDPWD/images_in_bps.txt
 
