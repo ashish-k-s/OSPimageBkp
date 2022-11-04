@@ -13,5 +13,5 @@ eval $TAG
 eval $ADMINRC
 
 source $ADMINRC
-openstack image list -c Name -f value | grep -i $TAG | sort -n > images_on_cluster.txt
+openstack image list -c Name -f value | grep -i $TAG | grep -v 'DELETE' | sort -n > images_on_cluster.txt
 

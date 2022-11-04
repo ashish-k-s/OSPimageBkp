@@ -24,5 +24,4 @@ echo IMGBKPATH is not set
 exit 1
 fi
 
-ls -1 $IMGBKPATH | grep -i $TAG | sort -n > images_on_disk.txt
-
+ls -1 $IMGBKPATH | grep -i $TAG | grep -v 'DELETE' | sort -n > images_on_disk.txt
